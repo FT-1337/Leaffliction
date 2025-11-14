@@ -30,12 +30,6 @@
 
 #!/bin/bash
 
-# ============================================================================
-# Virtual Environment Setup Script for Leaffliction Project
-# ============================================================================
-# This script creates a Python virtual environment and installs all required
-# packages for the Image Transformation Program using PlantCV
-# ============================================================================
 
 # Colors for output
 RED='\033[0;31m'
@@ -252,3 +246,7 @@ print_success "Created activation helper: ./activate_venv.sh"
 echo ""
 print_info "You can also activate quickly with: ${GREEN}source activate_venv.sh${NC}"
 echo ""
+
+#for transformation.py
+#step1 pip install altair==5.3.0
+#step2 pip install altair_saver vega-datasets vl-convert-python
