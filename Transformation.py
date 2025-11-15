@@ -11,7 +11,6 @@ except:
     pass
 
 
-
 def panel(ax, img, title):
     try:
         rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -39,7 +38,7 @@ def main():
     parser.add_argument("-o", "--outdir", required=True, help="Output directory")
     args = parser.parse_args()
 
-   os.makedirs(args.outdir, exist_ok=True)
+    os.makedirs(args.outdir, exist_ok=True)
     pcv.params.debug = None
 
  
