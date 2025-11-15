@@ -14,7 +14,8 @@ What it does
 - Extracts simple HSV color histogram features from each (augmented) image.
 - Splits the dataset into Training and Validation sets.
 - Trains a RandomForest classifier on the Training set.
-- Evaluates it on the Validation set and prints accuracy + classification report.
+- Evaluates it on the Validation set and prints accuracy +
+  classification report.
 - Saves the model + metadata.
 - Creates a .zip archive that includes:
     * The trained model
@@ -28,7 +29,6 @@ Example usage
 """
 
 import argparse
-import os
 import sys
 import json
 import shutil
@@ -269,7 +269,9 @@ def main():
         sys.exit(1)
 
     total_original = sum(len(v) for v in images_by_class.values())
-    log(f"✅ Found {len(images_by_class)} classes, {total_original} original images.\n")
+    log(
+        f"✅ Found {len(images_by_class)} classes, "
+        f"{total_original} original images.\n")
 
     # 2. Build dataset with augmentations
     log("🧪 Generating augmented dataset and extracting features...")
@@ -376,4 +378,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

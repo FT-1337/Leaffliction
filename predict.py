@@ -146,7 +146,9 @@ def main():
     axes[0].axis("off")
 
     axes[1].imshow(img_show_resized)
-    axes[1].set_title(f"Transformed\nPred: {label}", fontsize=12, fontweight="bold")
+    axes[1].set_title(
+        f"Transformed\nPred: {label}",
+        fontsize=12, fontweight="bold")
     axes[1].axis("off")
 
     plt.tight_layout()
@@ -157,7 +159,7 @@ def main():
     plt.show()   # display window during evaluation
     plt.close()
 
-    print(f"🖼️ Visualization saved to: {out_img_path}\n")
+    print("Visualization saved to:", out_img_path)
 
 
 if __name__ == "__main__":
