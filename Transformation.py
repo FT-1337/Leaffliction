@@ -193,6 +193,33 @@ def main():
     plt.tight_layout()
     plt.savefig(os.path.join(
         args.outdir, "image_transformations.png"), dpi=200)
+    rgb_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    hsv_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    lab_img = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
+
+    color_spaces = {
+        "red": rgb_img[:, :, 0],
+        "green": rgb_img[:, :, 1],
+        "blue": rgb_img[:, :, 2],
+        "hue": hsv_img[:, :, 0],
+        "saturation": hsv_img[:, :, 1],
+        "value": hsv_img[:, :, 2],
+        "lightness": lab_img[:, :, 0],
+        "green-magenta": lab_img[:, :, 1],
+        "blue-yellow": lab_img[:, :, 2],
+    }
+
+    plt.figure(figsize=(10, 6))
+    for name, channel in color_spaces.items():
+        hist, bins = np.histogram(channel.flatten(), bins=256, range=[0, 256], density=True)
+        plt.plot(bins[:-1], hist, label=name)
+
+    plt.xlabel("Pixel intensity")
+    plt.ylabel("Proportion of pixels (%)")
+    plt.title("Color Histogram")
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(os.path.join(args.outdir, "color_histogram.png"), dpi=200)
     plt.close()
 
 

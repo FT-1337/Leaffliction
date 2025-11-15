@@ -1,7 +1,9 @@
 # Ignore image and output directories
 images/
 output/
-
+leaffliction_model/
+predictions/
+augmented_dataset/
 # Python
 __pycache__/
 *.py[cod]

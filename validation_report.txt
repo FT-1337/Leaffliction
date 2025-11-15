@@ -1,0 +1,19 @@
+Validation classification report
+============================================================
+
+Accuracy: 99.82%
+
+                 precision    recall  f1-score   support
+
+Apple_Black_rot       1.00      1.00      1.00        70
+  Apple_healthy       1.00      1.00      1.00        70
+     Apple_rust       1.00      1.00      1.00        70
+     Apple_scab       1.00      1.00      1.00        70
+Grape_Black_rot       0.99      1.00      0.99        70
+     Grape_Esca       1.00      0.99      0.99        70
+  Grape_healthy       1.00      1.00      1.00        70
+     Grape_spot       1.00      1.00      1.00        70
+
+       accuracy                           1.00       560
+      macro avg       1.00      1.00      1.00       560
+   weighted avg       1.00      1.00      1.00       560
