@@ -7,11 +7,13 @@ A comprehensive plant disease classification and analysis tool.
 
 Purpose:
 - Scans a directory containing plant images organized by disease/health status
+- Or analyzes a single plant image file
 - Analyzes the distribution of different plant types and their conditions
 - Generates visual reports: Pie charts and Bar charts
 
 Input:
     - Directory path containing subdirectories of plant images
+    - Or a single image file path
     - Each subdirectory represents a plant type/disease category
     - Supported formats: .jpg, .jpeg, .png, .gif, .bmp
 
@@ -22,6 +24,7 @@ Output:
 
 Example Usage:
     python Distribution.py ./images
+    python Distribution.py ./images/Apple_Black_rot/image.jpg
     python Distribution.py /path/to/plant/images/directory
 
 Project Structure:
@@ -58,34 +61,58 @@ class PlantDataAnalyzer:
     
     def __init__(self, directory_path):
         """
-        Initialize the analyzer with a directory path.
+        Initialize the analyzer with a directory path or image file path.
         
         Args:
-            directory_path (str): Path to the directory containing plant images
+            directory_path (str): Path to the directory containing plant images or a single image file
             
         Raises:
-            FileNotFoundError: If the directory doesn't exist
-            NotADirectoryError: If the path is not a directory
+            FileNotFoundError: If the path doesn't exist
+            NotADirectoryError: If the path is not a directory and not a supported image file
+            ValueError: If the file is not a supported image format
         """
         self.data_directory = Path(directory_path)
         
         if not self.data_directory.exists():
-            raise FileNotFoundError(f"Directory not found: {directory_path}")
+            raise FileNotFoundError(f"Path not found: {directory_path}")
         
-        if not self.data_directory.is_dir():
-            raise NotADirectoryError(f"Path is not a directory: {directory_path}")
+        self.is_single_file = self.data_directory.is_file()
         
-        self.plant_data = defaultdict(int)
+        if self.is_single_file:
+            # Check if it's a supported image format
+            if self.data_directory.suffix.lower() not in self.SUPPORTED_FORMATS:
+                raise ValueError(f"Unsupported file format: {self.data_directory.suffix}. Supported formats: {', '.join(self.SUPPORTED_FORMATS)}")
+            
+            # For single file, create plant_data with parent directory as category
+            category = self.data_directory.parent.name
+            self.plant_data = {category: 1}
+        else:
+            # Directory case
+            if not self.data_directory.is_dir():
+                raise NotADirectoryError(f"Path is not a directory or supported image file: {directory_path}")
+            
+            self.plant_data = defaultdict(int)
+        
         self.output_directory = Path('./output')
         self.output_directory.mkdir(exist_ok=True)
     
     def scan_directory(self):
         """
-        Scan the directory and count images in each subdirectory.
+        Scan the directory and count images in each subdirectory, or return single file data.
         
         Returns:
             dict: Dictionary with category names as keys and image counts as values
         """
+        if self.is_single_file:
+            print(f"\n🔍 Analyzing single image: {self.data_directory}")
+            print("-" * 60)
+            category = list(self.plant_data.keys())[0]
+            count = self.plant_data[category]
+            print(f"  📁 {category:<30} | 🖼️  {count} image")
+            print("-" * 60)
+            print(f"✅ Total images found: {count}\n")
+            return self.plant_data
+        
         print(f"\n🔍 Scanning directory: {self.data_directory}")
         print("-" * 60)
         
@@ -251,9 +278,10 @@ def main():
     Main entry point for the program.
     """
     if len(sys.argv) < 2:
-        print("\n❌ Usage: python Distribution.py <directory_path>")
-        print("\nExample:")
+        print("\n❌ Usage: python Distribution.py <directory_path_or_image_file>")
+        print("\nExamples:")
         print("   python Distribution.py ./images")
+        print("   python Distribution.py ./images/Apple_Black_rot/image.jpg")
         print("   python Distribution.py /path/to/plant/images/directory")
         print("\nDirectory structure example:")
         print("   images/")
@@ -274,6 +302,9 @@ def main():
         print(f"\n❌ Error: {e}")
         sys.exit(1)
     except NotADirectoryError as e:
+        print(f"\n❌ Error: {e}")
+        sys.exit(1)
+    except ValueError as e:
         print(f"\n❌ Error: {e}")
         sys.exit(1)
     except Exception as e:

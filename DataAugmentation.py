@@ -12,6 +12,7 @@ Purpose:
 
 Input:
     - Directory path containing subdirectories of plant images
+    - Or a single image file path
     - Each subdirectory represents a plant type/disease category
     - Supported formats: .jpg, .jpeg, .png, .gif, .bmp
 
@@ -30,6 +31,7 @@ Augmentation Types:
 
 Example Usage:
     python DataAugmentation.py ./images
+    python DataAugmentation.py ./images/Apple_Black_rot/image.jpg
     python DataAugmentation.py /path/to/plant/images/directory
 
 Project Structure:
@@ -58,42 +60,58 @@ class DataAugmentor:
     Augments plant images using 6 different transformation techniques.
     
     Attributes:
-        data_directory (Path): Path to the images directory
+        data_path (Path): Path to the images directory or single image file
         supported_formats (tuple): Tuple of supported image file extensions
         augmentation_types (list): List of augmentation method names
+        is_single_file (bool): Whether the input is a single image file
     """
     
     SUPPORTED_FORMATS = ('.jpg', '.jpeg', '.png', '.gif', '.bmp')
     AUGMENTATION_TYPES = ['Flip', 'Rotate', 'Skew', 'Shear', 'Crop', 'Distortion']
     
-    def __init__(self, directory_path):
+    def __init__(self, path):
         """
-        Initialize the augmentor with a directory path.
+        Initialize the augmentor with a directory path or image file path.
         
         Args:
-            directory_path (str): Path to the directory containing plant images
+            path (str): Path to the directory containing plant images or a single image file
             
         Raises:
-            FileNotFoundError: If the directory doesn't exist
-            NotADirectoryError: If the path is not a directory
+            FileNotFoundError: If the path doesn't exist
+            NotADirectoryError: If the path is not a directory and not a supported image file
+            ValueError: If the file is not a supported image format
         """
-        self.data_directory = Path(directory_path)
+        self.data_path = Path(path)
         
-        if not self.data_directory.exists():
-            raise FileNotFoundError(f"Directory not found: {directory_path}")
+        if not self.data_path.exists():
+            raise FileNotFoundError(f"Path not found: {path}")
         
-        if not self.data_directory.is_dir():
-            raise NotADirectoryError(f"Path is not a directory: {directory_path}")
+        self.is_single_file = self.data_path.is_file()
+        
+        if self.is_single_file:
+            # Check if it's a supported image format
+            if self.data_path.suffix.lower() not in self.SUPPORTED_FORMATS:
+                raise ValueError(f"Unsupported file format: {self.data_path.suffix}. Supported formats: {', '.join(self.SUPPORTED_FORMATS)}")
+        else:
+            # Directory case
+            if not self.data_path.is_dir():
+                raise NotADirectoryError(f"Path is not a directory or supported image file: {path}")
     
     def get_all_images(self):
         """
-        Scan the directory recursively and find all images in subdirectories.
+        Scan the directory recursively and find all images in subdirectories,
+        or return single image data.
         
         Returns:
             dict: Dictionary with subdirectory names as keys and lists of image paths as values
         """
+        if self.is_single_file:
+            # For single file, create a category based on parent directory
+            category = self.data_path.parent.name
+            return {category: [self.data_path]}
+        
         images_by_category = {}
-        subdirectories = [d for d in self.data_directory.iterdir() if d.is_dir()]
+        subdirectories = [d for d in self.data_path.iterdir() if d.is_dir()]
         
         for subdir in sorted(subdirectories):
             image_paths = []
@@ -282,13 +300,16 @@ class DataAugmentor:
         Execute the complete augmentation pipeline for all images.
         """
         print("\n" + "=" * 70)
-        print("🖼️  PLANT IMAGE DATA AUGMENTOR")
+        if self.is_single_file:
+            print("🖼️  SINGLE IMAGE DATA AUGMENTOR")
+        else:
+            print("🖼️  PLANT IMAGE DATA AUGMENTOR")
         print("=" * 70)
         
         images_by_category = self.get_all_images()
         
         if not images_by_category:
-            print("⚠️  No images found in subdirectories.")
+            print("⚠️  No images found.")
             return False
         
         total_original = 0
@@ -305,7 +326,10 @@ class DataAugmentor:
                     print(f"  ✅ {image_path.name}")
             
             augmented_count = category_count * len(self.AUGMENTATION_TYPES)
-            print(f"  📊 {category_count} images augmented → {augmented_count} new images created")
+            if self.is_single_file:
+                print(f"  📊 1 image augmented → {augmented_count} new images created")
+            else:
+                print(f"  📊 {category_count} images augmented → {augmented_count} new images created")
             
             total_original += category_count
             total_augmented += augmented_count
@@ -351,9 +375,10 @@ def main():
     Main entry point for the program.
     """
     if len(sys.argv) < 2:
-        print("\n❌ Usage: python DataAugmentation.py <directory_path>")
-        print("\nExample:")
+        print("\n❌ Usage: python DataAugmentation.py <directory_path_or_image_file>")
+        print("\nExamples:")
         print("   python DataAugmentation.py ./images")
+        print("   python DataAugmentation.py ./images/Apple_Black_rot/image.jpg")
         print("   python DataAugmentation.py /path/to/plant/images/directory")
         print("\nDirectory structure example:")
         print("   images/")
@@ -381,6 +406,9 @@ def main():
         print(f"\n❌ Error: {e}")
         sys.exit(1)
     except NotADirectoryError as e:
+        print(f"\n❌ Error: {e}")
+        sys.exit(1)
+    except ValueError as e:
         print(f"\n❌ Error: {e}")
         sys.exit(1)
     except Exception as e:
